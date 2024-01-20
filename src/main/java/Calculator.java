@@ -6,14 +6,15 @@ public class Calculator {
             return 0;
         }
 
-        String[] values = number.split(",");
+        String[] values = number.split("(,|\\n)+");
+
         int[] intValues = convertIntoInt(values);
 
         if(intValues.length > 1){
             return IntStream.of(intValues).sum();
         }
 
-        return Integer.parseInt(number);
+        return intValues[0];
     }
 
     public static int[] convertIntoInt(String[] values){
