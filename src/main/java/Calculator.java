@@ -16,7 +16,7 @@ public class Calculator {
 
         if(input.startsWith("//")){
             matcher = checkIfDifferentDelimiterExists(input);
-            optionalDelimiter = matcher.group(1);
+            optionalDelimiter = Pattern.quote(matcher.group(1));
             input = matcher.group(2);
             values = input.split("(,|\\n|"+optionalDelimiter+")+");
         }else{
@@ -61,7 +61,7 @@ public class Calculator {
 
 
     public static Matcher checkIfDifferentDelimiterExists(String input){
-        String patternString = "/{2}(.)\\n(.*)";
+        String patternString = "/{2}(?:\\[(.*?)\\])*\\n(.*)";
 
         Pattern pattern = Pattern.compile(patternString);
 

@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import static org.junit.Assert.assertThrows;
 
 public class CalculatorTest {
+
+
     @Test
     public void testBlankValue() throws Exception {
         Assert.assertNotNull(Calculator.add(""));
@@ -39,10 +41,10 @@ public class CalculatorTest {
 
     @Test
     public void testNewOptionalDelimiterInput() throws Exception {
-        Assert.assertTrue(Calculator.add("//;\n1;2") == 3);
-        Assert.assertTrue(Calculator.add("//%\n7%8%9%10") == 34);
-        Assert.assertTrue(Calculator.add("//1\n71819110") == 24);
-        Assert.assertTrue(Calculator.add("//1\n1111111") == 0);
+        Assert.assertTrue(Calculator.add("//[;]\n1;2") == 3);
+        Assert.assertTrue(Calculator.add("//[%]\n7%8%9%10") == 34);
+        Assert.assertTrue(Calculator.add("//[1]\n71819110") == 24);
+        Assert.assertTrue(Calculator.add("//[1]\n1111111") == 0);
     }
 
     @Test
@@ -99,7 +101,12 @@ public class CalculatorTest {
     @Test
     public void testValuesHigherThan1000() throws Exception {
         Assert.assertTrue(Calculator.add("1001,2") == 2);
-        Assert.assertTrue(Calculator.add("//;\n1;10000") == 1);
-        Assert.assertTrue(Calculator.add("//%\n7%8000%9000%10") == 17);
+        Assert.assertTrue(Calculator.add("//[;]\n1;10000") == 1);
+        Assert.assertTrue(Calculator.add("//[%]\n7%8000%9000%10") == 17);
+    }
+
+    @Test
+    public void testAnyLengthDelimiters() throws Exception {
+        Assert.assertTrue(Calculator.add("//[|||]\n1|||2|||3") == 6);
     }
 }
