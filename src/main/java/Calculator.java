@@ -6,7 +6,7 @@ import java.util.stream.IntStream;
 public class Calculator {
 
     public static Integer add(String input) throws Exception {
-        String optionalDelimiter = "";
+        String delimiters = "";
         Matcher matcher;
         String[] values;
 
@@ -15,11 +15,13 @@ public class Calculator {
         }
 
         if(input.startsWith("//")){
-            matcher = checkIfDifferentDelimiterExists(input);
-            optionalDelimiter = Pattern.quote(matcher.group(1));
+            matcher = splitDelimitersAndValues(input);
+            delimiters = matcher.group(1);
+            ArrayList<String> cleanedDelimiters = extractDelimiters(delimiters);
+            String regexSplitDelimiter = prepareDelimitersForSplitRegex(cleanedDelimiters);
             input = matcher.group(2);
-            values = input.split("(,|\\n|"+optionalDelimiter+")+");
-        }else{
+            values = input.split(regexSplitDelimiter);
+        } else {
             values = input.split("(,|\\n)+");
         }
 
@@ -29,14 +31,13 @@ public class Calculator {
             return 0;
         }
 
-        if(intValues.length > 1){
-            return IntStream.of(intValues).sum();
-        }
-
-        return intValues[0];
+        return IntStream.of(intValues).sum();
     }
 
-    public static int[] convertIntoInt(String[] values) throws Exception {
+    /*
+        Converts the values of the String input into array of int while handling negative values and values above 1000
+     */
+    private static int[] convertIntoInt(String[] values) throws Exception {
         int[] integerValues = new int[values.length];
         ArrayList<String> negativeValues = new ArrayList<String>();
 
@@ -52,25 +53,57 @@ public class Calculator {
         }
 
         if(!negativeValues.isEmpty()){
-            throw new Exception("Negatives not allowed: "+negativeValues.toString());
+            throw new Exception("Negatives not allowed: " + negativeValues);
         }
 
         return integerValues;
     }
 
-
-
-    public static Matcher checkIfDifferentDelimiterExists(String input){
-        String patternString = "/{2}(?:\\[(.*?)\\])*\\n(.*)";
+    /*
+        Returns the delimiters and the values part of the input separated
+     */
+    private static Matcher splitDelimitersAndValues(String input) {
+        String patternString = "\\/{2}(\\[.*\\])*\\n(.*)";
 
         Pattern pattern = Pattern.compile(patternString);
 
         Matcher matcher = pattern.matcher(input);
         boolean matches = matcher.matches();
-        String delimiter = matcher.group(1);
-        String rest = matcher.group(2);
 
         return matcher;
     }
 
+    /*
+        Extracts the delimiters without the []
+     */
+    private static ArrayList<String> extractDelimiters(String delimiters) {
+        String delimiterPattern = "\\[([^\\]]+)\\]";
+        Pattern pattern = Pattern.compile(delimiterPattern);
+
+        Matcher matcher = pattern.matcher(delimiters);
+
+        ArrayList<String> arrayOfDelimiters = new ArrayList<>();
+
+        while(matcher.find()){
+            arrayOfDelimiters.add(matcher.group(1));
+        }
+
+        return arrayOfDelimiters;
+    }
+
+    /*
+        Returns regex ready to split the values input
+     */
+    private static String prepareDelimitersForSplitRegex(ArrayList<String> delimiters) {
+        String optionalDelimiters = "(,|\\n";
+
+        for (String delimiter: delimiters) {
+            optionalDelimiters += "|";
+            optionalDelimiters += Pattern.quote(delimiter);
+        }
+
+        optionalDelimiters += ")";
+
+        return optionalDelimiters;
+    }
 }
